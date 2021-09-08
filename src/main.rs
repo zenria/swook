@@ -2,7 +2,7 @@ use serde::Deserialize;
 use slack_hook3::{AttachmentBuilder, PayloadBuilder, Slack};
 use structopt::StructOpt;
 
-/// Publish message to slack use webhook API
+/// Send message to slack channels using the Slack Incoming Webhook API
 ///
 /// Note: environment variable are read from environment enriched by .env file found in current directory and parents
 #[derive(StructOpt)]
