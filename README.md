@@ -6,7 +6,7 @@ Send message to slack channels using the [Slack Incoming Webhook API](https://ap
 
 ## Installation
 
-You must have a Rust toolchain installed on your system to install this cli.
+You must have a Rust toolchain installed on your system to install this cli. Please reach me if you want to help packaging it!
 
 ```
 cargo install swook
