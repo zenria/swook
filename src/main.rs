@@ -22,7 +22,7 @@ struct Opt {
     user_icon_url: Option<String>,
     /// The text of an attachement (optional)
     #[arg(long = "attachment")]
-    attachment: Option<String>,
+    attachment: Vec<String>,
     /// The color of the attachment (valid only if a text has been specified)
     #[arg(long = "attachment-color")]
     attachment_color: Option<String>,
@@ -35,44 +35,39 @@ async fn main() {
     let _ = dotenvy::dotenv();
     let opt: Opt = Opt::parse();
 
-    let payload = PayloadBuilder::new().text(opt.text);
+    let payload = PayloadBuilder::new().text(opt.text.clone());
     // change default webhook channel
     let payload = match &opt.channel {
         Some(channel) => payload.channel(channel),
         None => payload,
     };
     // change username if needed
-    let payload = match opt.username {
+    let payload = match &opt.username {
         Some(username) => payload.username(username),
         None => payload,
     };
     // change icon url is needed
-    let payload = match opt.user_icon_url {
-        Some(icon_url) => payload.icon_url(&icon_url),
+    let payload = match &opt.user_icon_url {
+        Some(icon_url) => payload.icon_url(icon_url),
         None => payload,
     };
     // add attachmement if any
-    let payload = match opt.attachment {
-        Some(attachment) => {
-            let attachment = AttachmentBuilder::new(attachment.clone()).text(attachment);
-            let attachment = match opt.attachment_color {
-                Some(color) => attachment.color(color),
+
+    let payload = payload.attachments(opt.attachment.iter().map(|attachment|{
+        let attachment = AttachmentBuilder::new(attachment.clone()).text(attachment.clone());
+            let attachment = match &opt.attachment_color {
+                Some(color) => attachment.color(color.clone()),
                 None => attachment,
             };
-            let attachment = match attachment.build() {
+            match attachment.build() {
                 Ok(a) => a,
                 Err(e) => {
                     eprintln!("Unable to parse color: {}", e);
                     eprintln!("Slack color can be either \"good\", \"warning\", \"danger\" or a web hexadecimal color, like \"#fecc00\" or \"#ccc\"");
                     std::process::exit(1);
                 }
-            };
-            payload.attachments(vec![attachment])
-        }
-        None => payload,
-    }
-    .build()
-    .unwrap();
+    }}).collect()).build().unwrap();
+
     // finally send to slack
     match Slack::new(opt.webhook_url) {
         Ok(slack) => {
