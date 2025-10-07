@@ -5,6 +5,7 @@ use slack_hook3::{AttachmentBuilder, PayloadBuilder, Slack};
 ///
 /// Note: environment variable are read from environment enriched by .env file found in current directory and parents
 #[derive(Parser)]
+#[command(version)]
 struct Opt {
     /// Webhook url, if not present it is read from SWOOK_WEBHOOK_URL environment variable
     #[arg(long = "webhook-url", short = 'u', env = "SWOOK_WEBHOOK_URL")]
